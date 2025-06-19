@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Список вакансий{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row gap-6">
+
+    <div class="w-full md:w-1/4 bg-white p-4 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Фильтры</h2>
+        <form method="get" id="filter-form">
+            {% include 'jobs/partials/filters.html' %}
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mt-4">
+                Применить фильтры
+            </button>
+        </form>
+    </div>
+    
+
+    <div class="w-full md:w-3/4">
+        <div class="bg-white p-4 rounded-lg shadow mb-6">
+            {% include 'jobs/partials/search.html' %}
+        </div>
+        
+        <div id="job-list">
+            {% if jobs %}
+                {% for job in jobs %}
+                    {% include 'jobs/partials/job_card.html' with job=job %}
+                {% endfor %}
+                
+                <!-- Pagination -->
+                <div class="mt-6 flex justify-center">
+                    <nav class="inline-flex rounded-md shadow">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                Назад
+                            </a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="px-3 py-2 border border-gray-300 bg-blue-600 text-white">{{ num }}</span>
+                            {% else %}
+                                <a href="?page={{ num }}" class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                    {{ num }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                                Вперед
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% else %}
+                <div class="bg-white p-6 rounded-lg shadow text-center">
+                    <p class="text-gray-600">По вашему запросу ничего не найдено.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+
+    $(document).on('click', '.quick-apply', function(e) {
+        e.preventDefault();
+        const jobId = $(this).data('job-id');
+        
+        $.ajax({
+            url: `/jobs/${jobId}/apply/`,
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                message: 'Быстрый отклик'
+            },
+            success: function(response) {
+                alert('Ваша заявка успешно отправлена!');
+                $(`.quick-apply[data-job-id="${jobId}"]`).replaceWith(
+                    '<span class="text-green-600">Заявка отправлена</span>'
+                );
+            },
+            error: function(xhr) {
+                if (xhr.status === 403) {
+                    window.location.href = '/accounts/login/?next=' + window.location.pathname;
+                } else {
+                    alert('Произошла ошибка при отправке заявки.');
+                }
+            }
+        });
+    });
+    
+ 
+    $('#filter-form').on('submit', function(e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+        
+        $.ajax({
+            url: window.location.pathname,
+            data: formData,
+            success: function(data) {
+                $('#job-list').html($(data).find('#job-list').html());
+                history.pushState(null, null, '?' + formData);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

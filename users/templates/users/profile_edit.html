@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Редактирование профиля</h1>
+    
+    <div class="bg-white rounded-lg shadow-md overflow-hidden p-6">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Имя</label>
+                    {{ form.first_name }}
+                </div>
+                <div>
+                    <label class="block text-gray-700 mb-2">Фамилия</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Email</label>
+                {{ form.email }}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Телефон</label>
+                {{ form.phone_number }}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Адрес</label>
+                {{ form.address }}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">Фото профиля</label>
+                <div class="flex items-center">
+                    <img class="h-16 w-16 rounded-full mr-4" 
+                         src="{{ form.instance.profile_picture.url|default:'/static/images/default-profile.png' }}" 
+                         alt="Current profile picture">
+                    {{ form.profile_picture }}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 mb-2">О себе</label>
+                {{ form.about }}
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    Сохранить изменения
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

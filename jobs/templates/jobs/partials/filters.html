@@ -1,0 +1,50 @@
+<div class="space-y-4">
+    <div>
+        <label class="block text-gray-700 mb-2">Тип работы</label>
+        <select name="job_type" class="w-full border border-gray-300 rounded px-3 py-2">
+            <option value="">Все типы</option>
+            <option value="one_time" {% if request.GET.job_type == 'one_time' %}selected{% endif %}>Разовая работа</option>
+            <option value="temporary" {% if request.GET.job_type == 'temporary' %}selected{% endif %}>Временная работа</option>
+            <option value="permanent" {% if request.GET.job_type == 'permanent' %}selected{% endif %}>Постоянная работа</option>
+        </select>
+    </div>
+    
+    <div>
+        <label class="block text-gray-700 mb-2">График работы</label>
+        <select name="schedule" class="w-full border border-gray-300 rounded px-3 py-2">
+            <option value="">Любой график</option>
+            <option value="full_time" {% if request.GET.schedule == 'full_time' %}selected{% endif %}>Полный день</option>
+            <option value="part_time" {% if request.GET.schedule == 'part_time' %}selected{% endif %}>Неполный день</option>
+            <option value="shifts" {% if request.GET.schedule == 'shifts' %}selected{% endif %}>Сменный график</option>
+            <option value="flexible" {% if request.GET.schedule == 'flexible' %}selected{% endif %}>Гибкий график</option>
+        </select>
+    </div>
+    
+    <div>
+        <label class="block text-gray-700 mb-2">Тип оплаты</label>
+        <select name="payment_type" class="w-full border border-gray-300 rounded px-3 py-2">
+            <option value="">Любой тип</option>
+            <option value="hourly" {% if request.GET.payment_type == 'hourly' %}selected{% endif %}>Почасовая</option>
+            <option value="piecework" {% if request.GET.payment_type == 'piecework' %}selected{% endif %}>Сдельная</option>
+            <option value="fixed" {% if request.GET.payment_type == 'fixed' %}selected{% endif %}>Фиксированная</option>
+        </select>
+    </div>
+    
+    <div>
+        <label class="block text-gray-700 mb-2">Зарплата от</label>
+        <input type="number" name="salary_min" value="{{ request.GET.salary_min }}" 
+               class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Минимальная">
+    </div>
+    
+    <div>
+        <label class="block text-gray-700 mb-2">Категория</label>
+        <select name="category" class="w-full border border-gray-300 rounded px-3 py-2">
+            <option value="">Все категории</option>
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+</div>

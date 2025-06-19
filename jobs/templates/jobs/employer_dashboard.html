@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}Кабинет работодателя{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Кабинет работодателя</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Мой рейтинг</h3>
+            <div class="flex items-center">
+                <div class="text-yellow-500 text-2xl mr-2">
+                    {% for i in "12345" %}
+                        {% if i|add:0 <= user.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="text-gray-600">({{ user.reviews_received.count }} отзывов)</span>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Активные вакансии</h3>
+            <p class="text-3xl font-bold text-blue-600">
+                {{ active_jobs.count }}
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Новые заявки</h3>
+            <p class="text-3xl font-bold text-green-600">
+                {{ new_applications.count }}
+            </p>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Мои вакансии</h2>
+            <a href="{% url 'job_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                Создать вакансию
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Название</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Тип</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Заявки</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for job in jobs %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'job_detail' job.id %}" class="text-blue-600 hover:underline">
+                                {{ job.title }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ job.get_job_type_display }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if job.is_active %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {% if job.is_active %}Активна{% else %}Неактивна{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ job.applications.count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'job_update' job.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">Редактировать</a>
+                            <a href="#" class="text-red-600 hover:text-red-900">Удалить</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            У вас нет активных вакансий
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-6">Последние заявки</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Вакансия</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Соискатель</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for application in applications|slice:":10" %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'job_detail' application.job.id %}" class="text-blue-600 hover:underline">
+                                {{ application.job.title }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'profile' application.worker.id %}" class="text-blue-600 hover:underline">
+                                {{ application.worker.username }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if application.status == 'accepted' %}bg-green-100 text-green-800
+                                {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ application.applied_at|date:"d.m.Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Просмотреть</a>
+                            {% if application.status == 'pending' %}
+                                <a href="#" class="text-green-600 hover:text-green-900 mr-3">Принять</a>
+                                <a href="#" class="text-red-600 hover:text-red-900">Отклонить</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            У вас нет заявок на вакансии
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

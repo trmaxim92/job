@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Личный кабинет</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Мой рейтинг</h3>
+            <div class="flex items-center">
+                <div class="text-yellow-500 text-2xl mr-2">
+                    {% for i in "12345" %}
+                        {% if i|add:0 <= user.rating %}
+                            <i class="fas fa-star"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="text-gray-600">({{ user.reviews_received.count }} отзывов)</span>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Активные заявки</h3>
+            <p class="text-3xl font-bold text-blue-600">
+                {{ active_applications.count }}
+            </p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-2">Завершенные работы</h3>
+            <p class="text-3xl font-bold text-green-600">
+                {{ completed_applications.count }}
+            </p>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow mb-8">
+        <h2 class="text-2xl font-bold mb-6">Мои заявки</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Вакансия</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Статус</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Дата</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for application in applications %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'job_detail' application.job.id %}" class="text-blue-600 hover:underline">
+                                {{ application.job.title }}
+                            </a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if application.status == 'accepted' %}bg-green-100 text-green-800
+                                {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ application.applied_at|date:"d.m.Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {% if application.status == 'pending' %}
+                                <a href="#" class="text-red-600 hover:text-red-900">Отменить</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                            У вас нет активных заявок
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-6">Рекомендуемые вакансии</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for job in recommended_jobs %}
+                {% include 'jobs/partials/job_card.html' with job=job %}
+            {% empty %}
+                <p class="text-gray-600">Нет рекомендуемых вакансий. Попробуйте изменить параметры поиска.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
