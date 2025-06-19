@@ -53,7 +53,7 @@
             
             <!-- Mobile menu -->
             <div x-show="mobileMenuOpen" class="md:hidden mt-4 pb-2">
-                <a href="{% url 'job_list' %}" class="block py-2 hover:bg-blue-700 px-2 rounded">Вакансии</a>
+                <a href="{% url 'jobs:job_list' %}" class="block py-2 hover:bg-blue-700 px-2 rounded">Вакансии</a>
                 {% if user.is_authenticated %}
                     {% if user.is_worker %}
                         <a href="{% url 'dashboard' %}" class="block py-2 hover:bg-blue-700 px-2 rounded">Мои заявки</a>

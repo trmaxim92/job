@@ -7,6 +7,7 @@ from django_filters.views import FilterView
 from .models import Job, JobApplication, Review, JobCategory
 from .filters import JobFilter
 from .forms import JobForm, JobApplicationForm, ReviewForm
+from django.db.models import Q
 
 class JobListView(FilterView):
     model = Job
@@ -98,3 +99,48 @@ def create_review(request, user_id):
     else:
         form = ReviewForm()
     return render(request, 'jobs/review_form.html', {'form': form, 'reviewed_user': reviewed_user})
+
+def get_recommended_jobs(user):
+    if not user.is_authenticated or not user.is_worker:
+        return Job.objects.none()
+    
+
+    preferred_job_types = []
+    preferred_schedules = []
+    
+   
+    recommended = Job.objects.filter(is_active=True).exclude(
+        applications__worker=user
+    ).order_by('-created_at')
+    
+    
+    past_applications = JobApplication.objects.filter(worker=user).select_related('job')
+    if past_applications.exists():
+        preferred_job_types = list(set([app.job.job_type for app in past_applications]))
+        preferred_schedules = list(set([app.job.schedule for app in past_applications]))
+        
+        if preferred_job_types:
+            recommended = recommended.filter(
+                Q(job_type__in=preferred_job_types) | 
+                Q(schedule__in=preferred_schedules)
+            ).distinct()
+    
+    return recommended[:6]
+
+class DashboardView(LoginRequiredMixin, ListView):
+    template_name = 'jobs/dashboard.html'
+    context_object_name = 'applications'
+    
+    def get_queryset(self):
+        if self.request.user.is_worker:
+            return JobApplication.objects.filter(worker=self.request.user).order_by('-applied_at')
+        else:
+            return JobApplication.objects.filter(job__employer=self.request.user).order_by('-applied_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_worker:
+            context['active_applications'] = self.get_queryset().filter(status__in=['pending', 'accepted'])
+            context['completed_applications'] = self.get_queryset().filter(status='completed')
+            context['recommended_jobs'] = get_recommended_jobs(self.request.user)
+        return context

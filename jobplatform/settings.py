@@ -35,6 +35,21 @@ LOGOUT_REDIRECT_URL = 'home'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+SITE_ID = 1
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory' 
+ACCOUNT_UNIQUE_EMAIL = True
+LOGIN_REDIRECT_URL = 'dashboard'  # Куда перенаправлять после входа
+ACCOUNT_LOGOUT_REDIRECT_URL = 'home'
 
 # Application definition
 
@@ -51,6 +66,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'jobs',
     'users',
+    'django.contrib.sites',  
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 ]
 
 MIDDLEWARE = [

@@ -47,4 +47,13 @@
             {% endfor %}
         </select>
     </div>
+    <div>
+        <label class="block text-gray-700 mb-2">Тип работы</label>
+        <select name="job_type" class="w-full border border-gray-300 rounded px-3 py-2">
+            <option value="">Все типы</option>
+            <option value="one_time" {% if request.GET.job_type == 'one_time' %}selected{% endif %}>Разовая работа</option>
+            <option value="temporary" {% if request.GET.job_type == 'temporary' %}selected{% endif %}>Временная работа</option>
+            <option value="permanent" {% if request.GET.job_type == 'permanent' %}selected{% endif %}>Постоянная работа</option>
+        </select>
+    </div>
 </div>
